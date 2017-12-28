@@ -29,6 +29,11 @@
                 android:layout_weight="1"
                 android:shadowColor="#000000"
                 android:text="logout" />
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#ea6b1b"
+                />
 
             <Button
                 android:id="@+id/history"
@@ -38,6 +43,11 @@
                 android:layout_weight="2"
                 android:shadowColor="#000000"
                 android:text="history" />
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#ea6b1b"
+                />
 
             <Button
                 android:id="@+id/settings"

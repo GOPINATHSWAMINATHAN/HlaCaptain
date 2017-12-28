@@ -1,9 +1,14 @@
 package com.hlacab.hlacaptain;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -116,11 +121,14 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    registerUserWithTeliver();
-                    connectDriver();
-                    startTrip();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Could not identify your location", Toast.LENGTH_LONG).show();
+//                        getRideLater();
+                        registerUserWithTeliver();
+                        connectDriver();
+                        startTrip();
+
+                    } else {
+                    stopTrip();
+                    Toast.makeText(getApplicationContext(), "We cannot assign trip to you now.", Toast.LENGTH_LONG).show();
                     disconnectDriver();
                 }
             }
@@ -303,13 +311,26 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         mCustomerName.setText(map.get("name").toString());
 
                     }
+                    else
+                    {
+                        mCustomerName.setText("Not Provided!");
+                    }
                     if (map.get("phone") != null) {
                         phone = map.get("phone").toString();
                         mCustomerPhone.setText(map.get("phone").toString());
 
                     }
+                    else
+                    {
+                        mCustomerPhone.setText("Not Provided");
+                    }
                     if (map.get("profileImageUrl") != null) {
                         Glide.with(getApplication()).load(map.get("profileImageUrl").toString()).into(mCustomerProfileImage);
+                    }
+                    else
+                    {
+                        Drawable d = getResources().getDrawable(R.drawable.saudi);
+                        mCustomerProfileImage.setImageDrawable(d);
                     }
                 }
             }
@@ -380,7 +401,6 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -599,6 +619,84 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
                 }
 
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        LocationManager mlocManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        boolean enabled = mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        if (!enabled) {
+            showDialogGPS();
+        }
+    }
+
+    private void showDialogGPS() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(false);
+        builder.setTitle("Enable GPS");
+        builder.setMessage("Please enable GPS");
+        builder.setInverseBackgroundForced(true);
+        builder.setPositiveButton("Enable GPS", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                startActivity(
+                        new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            }
+        });
+        builder.setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+
+    private DatabaseReference assignedCustomerPickupLocationRefLater;
+    private ValueEventListener assignedCustomerPickupLocationRefListenerLater;
+    private DatabaseReference time;
+
+    private void getRideLater() {
+        assignedCustomerPickupLocationRefLater = FirebaseDatabase.getInstance().getReference().child("rideLaterRequest").child(customerId).child("l");
+
+        time=FirebaseDatabase.getInstance().getReference().child("rideLaterRequest").child(customerId).child("time");
+        time.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String time=dataSnapshot.getValue(String.class);
+                Toast.makeText(getApplicationContext(),""+time,Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        assignedCustomerPickupLocationRefListenerLater = assignedCustomerPickupLocationRefLater.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && !customerId.equals("")) {
+                    List<Object> map = (List<Object>) dataSnapshot.getValue();
+                    double locationLat = 0;
+                    double locationLng = 0;
+                    if (map.get(0) != null) {
+                        locationLat = Double.parseDouble(map.get(0).toString());
+                    }
+                    if (map.get(1) != null) {
+                        locationLng = Double.parseDouble(map.get(1).toString());
+                    }
+                    pickupLatLng = new LatLng(locationLat, locationLng);
+                    Toast.makeText(getApplicationContext(),""+pickupLatLng,Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
