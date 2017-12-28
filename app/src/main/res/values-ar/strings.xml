@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HlaCaptain</string>
+    <string name="get_started">لنبدأ</string>
+    <string name="Destination">المكان المقصود</string>
+    <string name="ride_now">طلب رحلة الأن</string>
+    <string name="ride_later">طلب رحلة في وقت لاحق</string>
+    <string name="logout">خروج</string>
+    <string name="history">فيما سبق</string>
+    <string name="settings">الظبط</string>
+    <string name="economy">اقتصادي</string>
+    <string name="deluxe">مميز</string>
+    <string name="business">اعمال</string>
+    <string name="looking">ابحث عن موقع السائق</string>
+    <string name="getting_driver">اختار سائقك</string>
+    <string name="pay_card">الدفع بالبطاقة</string>
+    <string name="pay_cash">الدفع نقدا</string>
+    <string name="picked">تم ركوب العميل بالسيارة</string>
+    <string name="drive_completed">تم التحقق من السائق</string>
+    <string name="trip_completed">الرحلة اكتملت</string>
+    <string name="profile">الملف الشخصي</string>
+    <string name="hlacab">هلا أجرة</string>
+    <string name="email">الأيميل الشخصي</string>
+    <string name="phone">رقم الجوال</string>
+</resources>
