@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -91,6 +92,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     private ImageView mCustomerProfileImage;
 
     private TextView mCustomerName, mCustomerPhone, mCustomerDestination;
+    MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,11 +124,11 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
 //                        getRideLater();
-                        registerUserWithTeliver();
-                        connectDriver();
-                        startTrip();
+                    registerUserWithTeliver();
+                    connectDriver();
+                    startTrip();
 
-                    } else {
+                } else {
                     stopTrip();
                     Toast.makeText(getApplicationContext(), "We cannot assign trip to you now.", Toast.LENGTH_LONG).show();
                     disconnectDriver();
@@ -204,7 +206,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                 if (dataSnapshot.exists()) {
                     status = 1;
                     customerId = dataSnapshot.getValue().toString();
-
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer = MediaPlayer.create(DriverMapActivity.this, R.raw.android_mp3);
+                    mediaPlayer.start();
                     getAssignedCustomerPickupLocation();
                     getAssignedCustomerDestination();
                     getAssignedCustomerInfo();
@@ -252,13 +256,19 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     }
 
     private void getRouteToMarker(LatLng pickupLatLng) {
-        Routing routing = new Routing.Builder()
-                .travelMode(AbstractRouting.TravelMode.DRIVING)
-                .withListener(this)
-                .alternativeRoutes(false)
-                .waypoints(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), pickupLatLng)
-                .build();
-        routing.execute();
+        try {
+            Routing routing = new Routing.Builder()
+                    .travelMode(AbstractRouting.TravelMode.DRIVING)
+                    .withListener(this)
+                    .alternativeRoutes(false)
+                    .waypoints(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), pickupLatLng)
+                    .build();
+            routing.execute();
+        } catch (Exception e) {
+//            Intent intent = getIntent();
+//            finish();
+//            startActivity(intent);
+        }
     }
 
     private void getAssignedCustomerDestination() {
@@ -310,25 +320,19 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     if (map.get("name") != null) {
                         mCustomerName.setText(map.get("name").toString());
 
-                    }
-                    else
-                    {
+                    } else {
                         mCustomerName.setText("Not Provided!");
                     }
                     if (map.get("phone") != null) {
                         phone = map.get("phone").toString();
                         mCustomerPhone.setText(map.get("phone").toString());
 
-                    }
-                    else
-                    {
+                    } else {
                         mCustomerPhone.setText("Not Provided");
                     }
                     if (map.get("profileImageUrl") != null) {
                         Glide.with(getApplication()).load(map.get("profileImageUrl").toString()).into(mCustomerProfileImage);
-                    }
-                    else
-                    {
+                    } else {
                         Drawable d = getResources().getDrawable(R.drawable.saudi);
                         mCustomerProfileImage.setImageDrawable(d);
                     }
@@ -423,8 +427,12 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         if (getApplicationContext() != null) {
 
             if (!customerId.equals("")) {
-                rideDistance += mLastLocation.distanceTo(location) / 1000;
+
+                    rideDistance += mLastLocation.distanceTo(location) / 1000;
+
+
             }
+
 
             mLastLocation = location;
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -627,6 +635,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             }
         });
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -668,12 +677,12 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     private void getRideLater() {
         assignedCustomerPickupLocationRefLater = FirebaseDatabase.getInstance().getReference().child("rideLaterRequest").child(customerId).child("l");
 
-        time=FirebaseDatabase.getInstance().getReference().child("rideLaterRequest").child(customerId).child("time");
+        time = FirebaseDatabase.getInstance().getReference().child("rideLaterRequest").child(customerId).child("time");
         time.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String time=dataSnapshot.getValue(String.class);
-                Toast.makeText(getApplicationContext(),""+time,Toast.LENGTH_LONG).show();
+                String time = dataSnapshot.getValue(String.class);
+                Toast.makeText(getApplicationContext(), "" + time, Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -695,7 +704,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         locationLng = Double.parseDouble(map.get(1).toString());
                     }
                     pickupLatLng = new LatLng(locationLat, locationLng);
-                    Toast.makeText(getApplicationContext(),""+pickupLatLng,Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "" + pickupLatLng, Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -704,5 +713,12 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopTrip();
+        disconnectDriver();
     }
 }
