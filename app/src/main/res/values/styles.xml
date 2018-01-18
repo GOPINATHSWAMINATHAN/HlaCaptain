@@ -7,5 +7,19 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+    <style name="NavigationMapRoute">
+        <!-- Colors -->
+        <item name="routeColor">#4099f2</item>
+        <item name="routeModerateCongestionColor">#f2ec35</item>
+        <item name="routeSevereCongestionColor">#e9458f</item>
+        <item name="routeShieldColor">#ffffff</item>
+        <!-- Scales -->
+        <item name="routeScale">1.0</item>
+    </style>
 
+    <style name="NavigationView" parent="Theme.AppCompat.NoActionBar">
+        <item name="navigationViewPrimary">#ffff</item>
+        <item name="navigationViewSecondary">#4099f2</item>
+        <item name="navigationViewAccent">#e9458f</item>
+    </style>
 </resources>

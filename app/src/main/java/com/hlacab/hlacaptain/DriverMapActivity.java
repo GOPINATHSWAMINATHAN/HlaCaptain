@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -47,6 +48,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -82,7 +84,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     private String customerId = "", destination;
     private LatLng destinationLatLng, pickupLatLng;
     private float rideDistance;
-
+Button navigation;
     private Boolean isLoggingOut = false;
 
     private SupportMapFragment mapFragment;
@@ -109,9 +111,20 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             mapFragment.getMapAsync(this);
         }
 
+//        navigation.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent myIntent=new Intent(getApplicationContext(),ShowNavigation.class);
+//              Bundle b=new Bundle();
+//              b.putParcelable("pickuplocation",new LatLng(pickupLatLng.latitude,pickupLatLng.longitude));
+//               b.putParcelable("destinationlocation",new LatLng(destinationLatLng.latitude,destinationLatLng.longitude));
+//                startActivity(myIntent);
+//            }
+//        });
+
         mAuth = FirebaseAuth.getInstance();
         mCustomerInfo = (LinearLayout) findViewById(R.id.customerInfo);
-
+navigation=findViewById(R.id.startNavi);
         mCustomerProfileImage = (ImageView) findViewById(R.id.customerProfileImage);
 
         mCustomerName = (TextView) findViewById(R.id.customerName);
@@ -156,7 +169,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         break;
                     case 2:
 
-                        recordRide();
+//                        recordRide();
                         endRide();
                         break;
                 }
@@ -218,11 +231,46 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                 }
             }
 
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+        DatabaseReference childDelete=FirebaseDatabase.getInstance().getReference().child("customerRequest");
+       childDelete.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+               Toast.makeText(getApplicationContext(),"Customer Cancelled the trip",Toast.LENGTH_LONG).show();
+               Log.e("TRIP CANCELLED","Your Trip has been cancelled!");
+               endRide();
+               stopTrip();
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
+
+
 
     Marker pickupMarker;
     private DatabaseReference assignedCustomerPickupLocationRef;
@@ -245,6 +293,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     }
                     pickupLatLng = new LatLng(locationLat, locationLng);
                     pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
+                    navigation.setVisibility(View.VISIBLE);
                     getRouteToMarker(pickupLatLng);
                 }
             }
@@ -254,6 +303,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             }
         });
     }
+
 
     private void getRouteToMarker(LatLng pickupLatLng) {
         try {
@@ -314,9 +364,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                     Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
-                    Toast.makeText(getApplicationContext(), "" + map.get("name").toString(), Toast.LENGTH_LONG).show();
-                    Toast.makeText(getApplicationContext(), "" + map.get("phone").toString(), Toast.LENGTH_LONG).show();
-                    Toast.makeText(getApplicationContext(), "" + map.get("profileImageUrl"), Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getApplicationContext(), "" + map.get("name").toString(), Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getApplicationContext(), "" + map.get("phone").toString(), Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getApplicationContext(), "" + map.get("profileImageUrl"), Toast.LENGTH_LONG).show();
                     if (map.get("name") != null) {
                         mCustomerName.setText(map.get("name").toString());
 

@@ -19,7 +19,7 @@
             android:name=".onAppKilled"
             android:stopWithTask="false" />
 
-        <activity android:name=".DriverLoginActivity">
+        <activity android:name=".ShowNavigation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -10,6 +10,7 @@
         android:layout_height="100sp"
         android:id="@+id/profileImage"
         android:src="@mipmap/ic_default_user"
+        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="20sp"/>
     <EditText
         android:id="@+id/name"

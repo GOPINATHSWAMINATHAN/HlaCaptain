@@ -35,6 +35,12 @@ dependencies {
     compile 'com.github.jd-alexander:library:1.1.0'
     compile 'com.teliver.sdk:TeliverSdk:1.0.17'
     compile 'com.paypal.sdk:paypal-android-sdk:2.15.3'
+    implementation ('com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.8.0')
+            {
+                transitive=true
+            }
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-navigation:0.8.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:5.3.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
