@@ -84,7 +84,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
         getUserInfo();
 
         //Newly added methods
-        getCompleteCarDetails();
+       // getCompleteCarDetails();
         getCompleteCaptainDetails();
 
         mProfileImage.setOnClickListener(new View.OnClickListener() {
@@ -111,60 +111,112 @@ public class DriverSettingsActivity extends AppCompatActivity {
             }
         });
     }
-    private void getUserInfo(){
-        mDriverDatabase.addValueEventListener(new ValueEventListener() {
+
+    private void getUserInfo() {
+        /**
+         * Name, phoneno,car,servicetype,profileimageurl
+         */
+//        mDriverDatabase.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+//                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+//                    if (map.get("name") != null) {
+//                        mName = map.get("name").toString();
+//                        mNameField.setText(mName);
+//                    }
+//                    if (map.get("phone") != null) {
+//                        mPhone = map.get("phone").toString();
+//                        mPhoneField.setText(mPhone);
+//                    }
+//                    if (map.get("car") != null) {
+//                        mCar = map.get("car").toString();
+//                        mCarField.setText(mCar);
+//                    }
+//                    if (map.get("service") != null) {
+//                        mService = map.get("service").toString();
+//                        switch (mService) {
+//                            case "Economy":
+//                                mRadioGroup.check(R.id.UberX);
+//                                break;
+//                            case "Deluxe":
+//                                mRadioGroup.check(R.id.UberBlack);
+//                                break;
+//                            case "Business":
+//                                mRadioGroup.check(R.id.UberXl);
+//                                break;
+//                        }
+//                    }
+//                    if (map.get("profileImageUrl") != null) {
+//                        mProfileImageUrl = map.get("profileImageUrl").toString();
+//                        Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//            }
+//        });
+
+        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child("riVLcqvGWhMMvuG4BwiDzPCkB9v2");
+        mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists() && dataSnapshot.getChildrenCount()>0){
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                     Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
-                    if(map.get("name")!=null){
-                        mName = map.get("name").toString();
-                        mNameField.setText(mName);
-                    }
-                    if(map.get("phone")!=null){
-                        mPhone = map.get("phone").toString();
-                        mPhoneField.setText(mPhone);
-                    }
-                    if(map.get("car")!=null){
-                        mCar = map.get("car").toString();
-                        mCarField.setText(mCar);
-                    }
-                    if(map.get("service")!=null){
-                        mService = map.get("service").toString();
-                        switch (mService){
-                            case"Economy":
-                                mRadioGroup.check(R.id.UberX);
-                                break;
-                            case"Deluxe":
-                                mRadioGroup.check(R.id.UberBlack);
-                                break;
-                            case"Business":
-                                mRadioGroup.check(R.id.UberXl);
-                                break;
-                        }
-                    }
-                    if(map.get("profileImageUrl")!=null){
-                        mProfileImageUrl = map.get("profileImageUrl").toString();
-                        Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
-                    }
+                    if (map.get("username") != null)
+                        mName = map.get("username").toString();
+                    mNameField.setText(mName);
+                    if (map.get("mobno") != null)
+                        mPhone = map.get("mobno").toString();
+                    mPhoneField.setText(mPhone);
+                    if(map.get("drpic")!=null)
+                        mProfileImageUrl=map.get("drpic").toString();
+                    Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
+getCompleteCarDetails();
                 }
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
 
     void getCompleteCarDetails() {
-        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child("NXOGhIZGnFaaUaFLzW3ALcpe5OA2");
+        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child("riVLcqvGWhMMvuG4BwiDzPCkB9v2").child("cardet");
         mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                     Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
-                    Toast.makeText(getApplicationContext(),""+map,Toast.LENGTH_LONG).show();
-                    Log.e("CAPTAIN DETAILS",""+map);
+
+                    if(map.get("vhtype")!=null)
+                        mService = map.get("vhtype").toString();
+                    Log.e("MSERVICE",""+mService);
+                    switch (mService) {
+                        case "economy":
+                            mRadioGroup.check(R.id.UberX);
+                            break;
+                        case "Deluxe":
+                            mRadioGroup.check(R.id.UberBlack);
+                            break;
+                        case "Business":
+                            mRadioGroup.check(R.id.UberXl);
+                            break;
+
+
+
+                    }
+                    if(map.get("carmodel")!=null)
+                        mCar=map.get("carmodel").toString();
+                    mCarField.setText(mCar);
+
+//                    Toast.makeText(getApplicationContext(), "" + map, Toast.LENGTH_LONG).show();
+//                    Log.e("CAPTAIN DETAILS", "" + map);
                 }
 
             }
@@ -176,16 +228,23 @@ public class DriverSettingsActivity extends AppCompatActivity {
         });
     }
 
-    void getCompleteCaptainDetails()
-    {
-        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child("NXOGhIZGnFaaUaFLzW3ALcpe5OA2").child("cardet");
+    void getCompleteCaptainDetails() {
+        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child("riVLcqvGWhMMvuG4BwiDzPCkB9v2").child("cardet");
         mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                     Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
-                    Toast.makeText(getApplicationContext(),""+map,Toast.LENGTH_LONG).show();
-                    Log.e("CAR DETAILS",""+map);
+                    if (map.get("username") != null)
+                        mName = map.get("username").toString();
+                    mNameField.setText(mName);
+                    if (map.get("mobno") != null)
+                        mPhone = map.get("mobno").toString();
+                    mPhoneField.setText(mPhone);
+                    if(map.get("drpic")!=null)
+                        mProfileImageUrl=map.get("drpic").toString();
+                    Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
+
                 }
 
             }
@@ -196,7 +255,6 @@ public class DriverSettingsActivity extends AppCompatActivity {
             }
         });
     }
-
 
 
     private void saveUserInformation() {
@@ -208,7 +266,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
 
         final RadioButton radioButton = (RadioButton) findViewById(selectId);
 
-        if (radioButton.getText() == null){
+        if (radioButton.getText() == null) {
             return;
         }
 
@@ -221,7 +279,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
         userInfo.put("service", mService);
         mDriverDatabase.updateChildren(userInfo);
 
-        if(resultUri != null) {
+        if (resultUri != null) {
 
             StorageReference filePath = FirebaseStorage.getInstance().getReference().child("profile_images").child(userID);
             Bitmap bitmap = null;
@@ -256,7 +314,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
                     return;
                 }
             });
-        }else{
+        } else {
             finish();
         }
 
@@ -265,7 +323,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1 && resultCode == Activity.RESULT_OK){
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             final Uri imageUri = data.getData();
             resultUri = imageUri;
             mProfileImage.setImageURI(resultUri);

@@ -219,7 +219,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         break;
                     case 2:
 
-                        recordRide();
+                       // recordRide();
                         endRide();
                         break;
                 }
