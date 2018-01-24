@@ -9,12 +9,14 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -28,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,7 +43,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
 
     private Button mBack, mConfirm;
 
-    private ImageView mProfileImage;
+    private CircularImageView mProfileImage;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDriverDatabase;
@@ -67,7 +70,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
         mPhoneField = (EditText) findViewById(R.id.phone);
         mCarField = (EditText) findViewById(R.id.car);
 
-        mProfileImage = (ImageView) findViewById(R.id.profileImage);
+        mProfileImage = (CircularImageView) findViewById(R.id.profileImage);
 
         mRadioGroup = (RadioGroup) findViewById(R.id.radioGroup);
 
@@ -79,6 +82,10 @@ public class DriverSettingsActivity extends AppCompatActivity {
         mDriverDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userID);
 
         getUserInfo();
+
+        //Newly added methods
+        getCompleteCarDetails();
+        getCompleteCaptainDetails();
 
         mProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,6 +152,47 @@ public class DriverSettingsActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    void getCompleteCarDetails() {
+        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child("NXOGhIZGnFaaUaFLzW3ALcpe5OA2");
+        mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+                    Toast.makeText(getApplicationContext(),""+map,Toast.LENGTH_LONG).show();
+                    Log.e("CAPTAIN DETAILS",""+map);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    void getCompleteCaptainDetails()
+    {
+        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child("NXOGhIZGnFaaUaFLzW3ALcpe5OA2").child("cardet");
+        mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+                    Toast.makeText(getApplicationContext(),""+map,Toast.LENGTH_LONG).show();
+                    Log.e("CAR DETAILS",""+map);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }

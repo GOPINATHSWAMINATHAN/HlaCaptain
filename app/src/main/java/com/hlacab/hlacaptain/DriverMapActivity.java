@@ -10,8 +10,12 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -54,14 +58,35 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.SphericalUtil;
 import com.teliver.sdk.core.Teliver;
 import com.teliver.sdk.models.TripBuilder;
 import com.teliver.sdk.models.UserBuilder;
 
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import at.markushi.ui.CircleButton;
+
 
 public class DriverMapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener, RoutingListener {
 
@@ -84,7 +109,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     private String customerId = "", destination;
     private LatLng destinationLatLng, pickupLatLng;
     private float rideDistance;
-Button navigation;
+    //Button navigation;
     private Boolean isLoggingOut = false;
 
     private SupportMapFragment mapFragment;
@@ -95,6 +120,11 @@ Button navigation;
 
     private TextView mCustomerName, mCustomerPhone, mCustomerDestination;
     MediaPlayer mediaPlayer;
+    double lat;
+    double lng;
+    double pickuptime;
+    Double completedistance;
+    CircleButton navigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,21 +140,41 @@ Button navigation;
         } else {
             mapFragment.getMapAsync(this);
         }
+        navigation = findViewById(R.id.startNavi);
+        navigation.setVisibility(View.VISIBLE);
 
-//        navigation.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
+        navigation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mRideStatus.getText() == "picked customer") {
+                    lat = pickupLatLng.latitude;
+
+                    lng = pickupLatLng.longitude;
+                    pickuptime = getCurrentTimestamp();
+                    Toast.makeText(getApplicationContext(), "pickuptime" + pickuptime, Toast.LENGTH_LONG).show();
+                } else {
+                    lat = destinationLatLng.latitude;
+                    lng = destinationLatLng.longitude;
+                }
+                String format = "geo:0,0?q=" + lat + "," + lng + "(Pickup Location)";
+
+                Uri uri = Uri.parse(format);
+
+
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
 //                Intent myIntent=new Intent(getApplicationContext(),ShowNavigation.class);
-//              Bundle b=new Bundle();
-//              b.putParcelable("pickuplocation",new LatLng(pickupLatLng.latitude,pickupLatLng.longitude));
-//               b.putParcelable("destinationlocation",new LatLng(destinationLatLng.latitude,destinationLatLng.longitude));
+////              Bundle b=new Bundle();
+////              b.putParcelable("pickuplocation",new LatLng(pickupLatLng.latitude,pickupLatLng.longitude));
+////               b.putParcelable("destinationlocation",new LatLng(destinationLatLng.latitude,destinationLatLng.longitude));
 //                startActivity(myIntent);
-//            }
-//        });
+            }
+        });
 
         mAuth = FirebaseAuth.getInstance();
         mCustomerInfo = (LinearLayout) findViewById(R.id.customerInfo);
-navigation=findViewById(R.id.startNavi);
+
         mCustomerProfileImage = (ImageView) findViewById(R.id.customerProfileImage);
 
         mCustomerName = (TextView) findViewById(R.id.customerName);
@@ -169,7 +219,7 @@ navigation=findViewById(R.id.startNavi);
                         break;
                     case 2:
 
-//                        recordRide();
+                        recordRide();
                         endRide();
                         break;
                 }
@@ -225,6 +275,7 @@ navigation=findViewById(R.id.startNavi);
                     getAssignedCustomerPickupLocation();
                     getAssignedCustomerDestination();
                     getAssignedCustomerInfo();
+                    navigation.setVisibility(View.VISIBLE);
                 } else {
                     endRide();
                     stopTrip();
@@ -236,8 +287,8 @@ navigation=findViewById(R.id.startNavi);
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        DatabaseReference childDelete=FirebaseDatabase.getInstance().getReference().child("customerRequest");
-       childDelete.addChildEventListener(new ChildEventListener() {
+        DatabaseReference childDelete = FirebaseDatabase.getInstance().getReference().child("customerRequest");
+        childDelete.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -250,10 +301,10 @@ navigation=findViewById(R.id.startNavi);
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-               Toast.makeText(getApplicationContext(),"Customer Cancelled the trip",Toast.LENGTH_LONG).show();
-               Log.e("TRIP CANCELLED","Your Trip has been cancelled!");
-               endRide();
-               stopTrip();
+                Toast.makeText(getApplicationContext(), "Trip finished!", Toast.LENGTH_LONG).show();
+                Log.e("TRIP CANCELLED", "Your Trip has been cancelled!");
+                endRide();
+                stopTrip();
 
             }
 
@@ -269,7 +320,6 @@ navigation=findViewById(R.id.startNavi);
         });
 
     }
-
 
 
     Marker pickupMarker;
@@ -293,7 +343,7 @@ navigation=findViewById(R.id.startNavi);
                     }
                     pickupLatLng = new LatLng(locationLat, locationLng);
                     pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pickup)));
-                    navigation.setVisibility(View.VISIBLE);
+                    // navigation.setVisibility(View.VISIBLE);
                     getRouteToMarker(pickupLatLng);
                 }
             }
@@ -322,6 +372,7 @@ navigation=findViewById(R.id.startNavi);
     }
 
     private void getAssignedCustomerDestination() {
+
         String driverId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference assignedCustomerRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverId).child("customerRequest");
         assignedCustomerRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -431,6 +482,7 @@ navigation=findViewById(R.id.startNavi);
         String requestId = historyRef.push().getKey();
         driverRef.child(requestId).setValue(true);
         customerRef.child(requestId).setValue(true);
+//Location.distanceBetween(pickupLatLng.latitude,pickupLatLng.longitude,destinationLatLng.latitude,destinationLatLng.longitude);
 
         HashMap map = new HashMap();
         map.put("driver", userId);
@@ -438,15 +490,17 @@ navigation=findViewById(R.id.startNavi);
         map.put("rating", 0);
         map.put("timestamp", getCurrentTimestamp());
         map.put("destination", destination);
-        map.put("location/from/lat", pickupLatLng.latitude);
-        map.put("location/from/lng", pickupLatLng.longitude);
-        map.put("location/to/lat", destinationLatLng.latitude);
-        map.put("location/to/lng", destinationLatLng.longitude);
+        map.put("originlat", pickupLatLng.latitude);
+        map.put("originlng", pickupLatLng.longitude);
+        map.put("destinationlat", destinationLatLng.latitude);
+        map.put("destinationlng", destinationLatLng.longitude);
         map.put("distance", rideDistance);
         historyRef.child(requestId).updateChildren(map);
+
     }
 
     private Long getCurrentTimestamp() {
+
         Long timestamp = System.currentTimeMillis() / 1000;
         return timestamp;
     }
@@ -478,8 +532,9 @@ navigation=findViewById(R.id.startNavi);
 
             if (!customerId.equals("")) {
 
-                    rideDistance += mLastLocation.distanceTo(location) / 1000;
-
+                rideDistance += mLastLocation.distanceTo(location) / 1000;
+                new RetrieveFeedTask().execute();
+                Toast.makeText(getApplicationContext(), "Complete distance is " + completedistance, Toast.LENGTH_LONG).show();
 
             }
 
@@ -598,7 +653,7 @@ navigation=findViewById(R.id.startNavi);
             Polyline polyline = mMap.addPolyline(polyOptions);
             polylines.add(polyline);
 
-            Toast.makeText(getApplicationContext(), "Route " + (i + 1) + ": distance - " + route.get(i).getDistanceValue() + ": duration - " + route.get(i).getDurationValue(), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Route " + (i + 1) + ": distance - " + route.get(i).getDistanceValue() + ": duration - " + route.get(i).getDurationValue(), Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -771,4 +826,94 @@ navigation=findViewById(R.id.startNavi);
         stopTrip();
         disconnectDriver();
     }
+
+
+    class RetrieveFeedTask extends AsyncTask<Void, Void, Double> {
+
+
+        @Override
+        protected Double doInBackground(Void... voids) {
+            StringBuilder stringBuilder = new StringBuilder();
+            Double dist = 0.0;
+            try {
+
+                //destinationAddress = destinationAddress.replaceAll(" ","%20");
+                String url = "http://maps.googleapis.com/maps/api/directions/json?origin=" + pickupLatLng.latitude + "," + pickupLatLng.longitude + "&destination=" + destinationLatLng.latitude + "," + destinationLatLng.longitude + "&mode=driving&sensor=false";
+
+                HttpPost httppost = new HttpPost(url);
+
+                DefaultHttpClient client = new DefaultHttpClient();
+                HttpResponse response;
+                stringBuilder = new StringBuilder();
+
+
+                response = client.execute(httppost);
+                HttpEntity entity = response.getEntity();
+                InputStream stream = entity.getContent();
+                int b;
+                while ((b = stream.read()) != -1) {
+                    stringBuilder.append((char) b);
+                }
+            } catch (ClientProtocolException e) {
+            } catch (IOException e) {
+            }
+
+            JSONObject jsonObject = new JSONObject();
+            try {
+
+                jsonObject = new JSONObject(stringBuilder.toString());
+
+                JSONArray array = jsonObject.getJSONArray("routes");
+
+                JSONObject routes = array.getJSONObject(0);
+
+                JSONArray legs = routes.getJSONArray("legs");
+
+                JSONObject steps = legs.getJSONObject(0);
+
+                JSONObject distance = steps.getJSONObject("distance");
+
+                Log.i("Distance", distance.toString());
+                dist = Double.parseDouble(distance.getString("text").replaceAll("[^\\.0123456789]", ""));
+
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            completedistance = dist;
+            return dist;
+        }
+
+        @Override
+        protected void onPostExecute(Double aDouble) {
+            super.onPostExecute(aDouble);
+        }
+    }
+
+
 }
+
+
+
+
+/*
+*
+* }￼
+ "apiKey": "API_KEY",
+ "vehicleReferenceNumber": 1,
+ "captainReferenceNumber": 1000,
+ "distanceInMeters": 1215,
+ "durationInSeconds": 42145,
+ "customerRating": 90.0,
+ "customerWaitingTimeInSeconds": 12132,
+    ,"الرياض" :"originCityNameInArabic"
+     ,"الرياض" :"destinationCityNameInArabic"
+ "originLatitude": 24.723437,
+ "originLongitude": 46.117452,
+ "destinationLatitude": 24.763437,
+ "destinationLongitude": 46.547452,
+ "pickupTimestamp": "2016-03-28T09:00:00.000",
+ "dropoffTimestamp": "2016-03-28T09:15:00.000"
+*
+*
+* */

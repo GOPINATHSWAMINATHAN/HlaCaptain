@@ -1,4 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -67,74 +68,89 @@
             android:layout_margin="10sp"
             android:text="Working" />
 
-        <Button
+        <at.markushi.ui.CircleButton
             android:id="@+id/startNavi"
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:src="@drawable/route"
             android:visibility="gone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="start navigation" />
+            app:cb_color="#99CC00"
+            app:cb_pressedRingWidth="8dip" />
 
     </LinearLayout>
 
-
-    <LinearLayout
-        android:id="@+id/customerInfo"
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@android:color/white"
-        android:elevation="1dp"
-        android:orientation="vertical"
-        android:translationZ="1dp"
-        android:visibility="gone">
+        android:layout_margin="5dp"
+        app:cardCornerRadius="5dp">
 
         <LinearLayout
+            android:id="@+id/customerInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/customerProfileImage"
-                android:layout_width="100sp"
-                android:layout_height="100sp"
-                android:padding="20sp"
-                android:src="@mipmap/ic_default_user" />
+            android:layout_gravity="bottom"
+            android:background="@drawable/layout_gradient"
+            android:elevation="1dp"
+            android:orientation="vertical"
+            android:translationZ="1dp"
+            android:visibility="gone">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingLeft="40sp">
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/customerDestination"
+                <ImageView
+                    android:id="@+id/customerProfileImage"
+                    android:layout_width="100sp"
+                    android:layout_height="100sp"
+                    android:padding="20sp"
+                    android:src="@mipmap/ic_default_user" />
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10sp"
-                    android:text="Destination: --" />
+                    android:orientation="vertical"
+                    android:paddingLeft="40sp">
 
-                <TextView
-                    android:id="@+id/customerName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="10sp"
-                    android:paddingTop="20sp" />
+                    <TextView
+                        android:id="@+id/customerDestination"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="10sp"
+                        android:text="Destination: --" />
 
-                <TextView
-                    android:id="@+id/customerPhone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="10sp"
-                    android:paddingTop="20sp" />
+                    <TextView
+                        android:id="@+id/customerName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="10sp"
+                        android:paddingTop="20sp" />
+
+                    <TextView
+                        android:id="@+id/customerPhone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="10sp"
+                        android:paddingTop="20sp" />
+                </LinearLayout>
             </LinearLayout>
+
+
+            <Button
+                android:id="@+id/rideStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ff7134"
+                android:text="picked customer"
+                android:textColor="#000000"
+                android:textSize="15dp"
+                android:textStyle="bold" />
+
+
         </LinearLayout>
+    </android.support.v7.widget.CardView>
 
-        <Button
-            android:id="@+id/rideStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="picked customer" />
-
-
-    </LinearLayout>
 </FrameLayout>
