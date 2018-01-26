@@ -85,7 +85,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
 
         //Newly added methods
        // getCompleteCarDetails();
-        getCompleteCaptainDetails();
+
 
         mProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,7 +99,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
         mConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveUserInformation();
+                //saveUserInformation();
             }
         });
 
@@ -116,25 +116,25 @@ public class DriverSettingsActivity extends AppCompatActivity {
         /**
          * Name, phoneno,car,servicetype,profileimageurl
          */
-//        mDriverDatabase.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
-//                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
-//                    if (map.get("name") != null) {
-//                        mName = map.get("name").toString();
-//                        mNameField.setText(mName);
-//                    }
-//                    if (map.get("phone") != null) {
-//                        mPhone = map.get("phone").toString();
-//                        mPhoneField.setText(mPhone);
-//                    }
-//                    if (map.get("car") != null) {
-//                        mCar = map.get("car").toString();
-//                        mCarField.setText(mCar);
-//                    }
-//                    if (map.get("service") != null) {
-//                        mService = map.get("service").toString();
+        mDriverDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+                    if (map.get("name") != null) {
+                        mName = map.get("name").toString();
+                       // mNameField.setText(mName);
+                    }
+                    if (map.get("phone") != null) {
+                        mPhone = map.get("phone").toString();
+                        //mPhoneField.setText(mPhone);
+                    }
+                    if (map.get("car") != null) {
+                        mCar = map.get("car").toString();
+                        //mCarField.setText(mCar);
+                    }
+                    if (map.get("service") != null) {
+                        mService = map.get("service").toString();
 //                        switch (mService) {
 //                            case "Economy":
 //                                mRadioGroup.check(R.id.UberX);
@@ -146,20 +146,20 @@ public class DriverSettingsActivity extends AppCompatActivity {
 //                                mRadioGroup.check(R.id.UberXl);
 //                                break;
 //                        }
-//                    }
-//                    if (map.get("profileImageUrl") != null) {
-//                        mProfileImageUrl = map.get("profileImageUrl").toString();
-//                        Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//            }
-//        });
+                    }
+                    if (map.get("profileImageUrl") != null) {
+                        mProfileImageUrl = map.get("profileImageUrl").toString();
+                       // Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
+                    }
+                }
+            }
 
-        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child("riVLcqvGWhMMvuG4BwiDzPCkB9v2");
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child(userID);
         mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -187,18 +187,18 @@ getCompleteCarDetails();
     }
 
     void getCompleteCarDetails() {
-        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child("riVLcqvGWhMMvuG4BwiDzPCkB9v2").child("cardet");
+        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child(userID).child("cardet");
         mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                     Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
 
-                    if(map.get("vhtype")!=null)
+                    if (map.get("vhtype") != null)
                         mService = map.get("vhtype").toString();
-                    Log.e("MSERVICE",""+mService);
+                    Log.e("MSERVICE", "" + mService);
                     switch (mService) {
-                        case "economy":
+                        case "Economy":
                             mRadioGroup.check(R.id.UberX);
                             break;
                         case "Deluxe":
@@ -209,12 +209,12 @@ getCompleteCarDetails();
                             break;
 
 
-
                     }
-                    if(map.get("carmodel")!=null)
-                        mCar=map.get("carmodel").toString();
+                    if (map.get("carmodel") != null)
+                        mCar = map.get("carmodel").toString();
                     mCarField.setText(mCar);
-
+                    saveUserInformation();
+                    //getCompleteCaptainDetails();
 //                    Toast.makeText(getApplicationContext(), "" + map, Toast.LENGTH_LONG).show();
 //                    Log.e("CAPTAIN DETAILS", "" + map);
                 }
@@ -228,39 +228,40 @@ getCompleteCarDetails();
         });
     }
 
-    void getCompleteCaptainDetails() {
-        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child("riVLcqvGWhMMvuG4BwiDzPCkB9v2").child("cardet");
-        mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
-                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
-                    if (map.get("username") != null)
-                        mName = map.get("username").toString();
-                    mNameField.setText(mName);
-                    if (map.get("mobno") != null)
-                        mPhone = map.get("mobno").toString();
-                    mPhoneField.setText(mPhone);
-                    if(map.get("drpic")!=null)
-                        mProfileImageUrl=map.get("drpic").toString();
-                    Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
 
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
+//    void getCompleteCaptainDetails() {
+//        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child(userID).child("cardet");
+//        mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+//                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+//                    if (map.get("username") != null)
+//                        mName = map.get("username").toString();
+//                    mNameField.setText(mName);
+//                    if (map.get("mobno") != null)
+//                        mPhone = map.get("mobno").toString();
+//                    mPhoneField.setText(mPhone);
+//                    if(map.get("drpic")!=null)
+//                        mProfileImageUrl=map.get("drpic").toString();
+//                    Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
+//
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//    }
 
 
     private void saveUserInformation() {
-        mName = mNameField.getText().toString();
-        mPhone = mPhoneField.getText().toString();
-        mCar = mCarField.getText().toString();
+//        mName = mNameField.getText().toString();
+//        mPhone = mPhoneField.getText().toString();
+//        mCar = mCarField.getText().toString();
 
         int selectId = mRadioGroup.getCheckedRadioButtonId();
 
@@ -277,6 +278,7 @@ getCompleteCarDetails();
         userInfo.put("phone", mPhone);
         userInfo.put("car", mCar);
         userInfo.put("service", mService);
+        userInfo.put("profileImageUrl",mProfileImageUrl);
         mDriverDatabase.updateChildren(userInfo);
 
         if (resultUri != null) {
@@ -307,15 +309,14 @@ getCompleteCarDetails();
                     Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
                     Map newImage = new HashMap();
-                    newImage.put("profileImageUrl", downloadUrl.toString());
+                    newImage.put("profileImageUrl", mProfileImageUrl);
                     mDriverDatabase.updateChildren(newImage);
 
-                    finish();
                     return;
                 }
             });
         } else {
-            finish();
+
         }
 
     }
