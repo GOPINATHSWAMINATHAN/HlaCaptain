@@ -302,6 +302,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+                navigation.setVisibility(View.INVISIBLE);
                 Toast.makeText(getApplicationContext(), "Trip finished!", Toast.LENGTH_LONG).show();
                 Log.e("TRIP CANCELLED", "Your Trip has been cancelled!");
                 endRide();
