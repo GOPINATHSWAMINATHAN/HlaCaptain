@@ -3,6 +3,7 @@ package com.hlacab.hlacaptain;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -69,7 +70,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
         mNameField = (EditText) findViewById(R.id.name);
         mPhoneField = (EditText) findViewById(R.id.phone);
         mCarField = (EditText) findViewById(R.id.car);
-
+        Typeface custom_font = Typeface.createFromAsset(getAssets(), "Nunito-Regular.ttf");
         mProfileImage = (CircularImageView) findViewById(R.id.profileImage);
 
         mRadioGroup = (RadioGroup) findViewById(R.id.radioGroup);
@@ -77,6 +78,9 @@ public class DriverSettingsActivity extends AppCompatActivity {
         mBack = (Button) findViewById(R.id.back);
         mConfirm = (Button) findViewById(R.id.confirm);
 
+        mNameField.setTypeface(custom_font);
+        mPhoneField.setTypeface(custom_font);
+        mCarField.setTypeface(custom_font);
         mAuth = FirebaseAuth.getInstance();
         userID = mAuth.getCurrentUser().getUid();
         mDriverDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userID);
