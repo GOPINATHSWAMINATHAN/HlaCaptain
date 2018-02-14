@@ -13,6 +13,8 @@ public class Integrate extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Teliver.init(this,"400a7757cea37d9c1276da89bc863470");
+
+                                            //My account API Key
+        Teliver.init(this,"f090dc812d7ac369d89d8a7fda7f8331");
     }
 }

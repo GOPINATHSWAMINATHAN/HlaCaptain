@@ -60,6 +60,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.SphericalUtil;
 import com.teliver.sdk.core.Teliver;
+import com.teliver.sdk.models.MarkerOption;
+import com.teliver.sdk.models.TrackingBuilder;
 import com.teliver.sdk.models.TripBuilder;
 import com.teliver.sdk.models.UserBuilder;
 
@@ -682,6 +684,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     if (map.get("name") != null) {
                         mName = map.get("name").toString();
                         Teliver.startTrip(new TripBuilder(mName).build());
+                        //Teliver.startTracking(new TrackingBuilder(new MarkerOption(mName)).build());
 
                     }
                 }

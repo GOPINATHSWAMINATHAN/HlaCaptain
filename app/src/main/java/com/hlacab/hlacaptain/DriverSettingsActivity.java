@@ -11,6 +11,9 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -75,7 +78,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
 
         mRadioGroup = (RadioGroup) findViewById(R.id.radioGroup);
 
-        mBack = (Button) findViewById(R.id.back);
+        //mBack = (Button) findViewById(R.id.back);
         mConfirm = (Button) findViewById(R.id.confirm);
 
         mNameField.setTypeface(custom_font);
@@ -107,15 +110,33 @@ public class DriverSettingsActivity extends AppCompatActivity {
             }
         });
 
-        mBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-                return;
-            }
-        });
+//        mBack.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                finish();
+//                return;
+//            }
+//        });
+
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // API 5+ solution
+                this.finish();
+               // onBackPressed();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     private void getUserInfo() {
         /**
          * Name, phoneno,car,servicetype,profileimageurl
