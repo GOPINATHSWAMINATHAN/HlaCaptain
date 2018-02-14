@@ -141,8 +141,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             mapFragment.getMapAsync(this);
         }
         navigation = findViewById(R.id.startNavi);
-        navigation.setVisibility(View.VISIBLE);
-
+        if(pickupLatLng==null) {
+            navigation.setVisibility(View.INVISIBLE);
+        }
         navigation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
