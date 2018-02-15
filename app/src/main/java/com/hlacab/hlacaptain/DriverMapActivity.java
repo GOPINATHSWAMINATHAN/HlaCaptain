@@ -12,10 +12,8 @@ import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -58,10 +56,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.maps.android.SphericalUtil;
 import com.teliver.sdk.core.Teliver;
-import com.teliver.sdk.models.MarkerOption;
-import com.teliver.sdk.models.TrackingBuilder;
 import com.teliver.sdk.models.TripBuilder;
 import com.teliver.sdk.models.UserBuilder;
 
@@ -77,14 +72,11 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import at.markushi.ui.CircleButton;
@@ -98,15 +90,18 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     String phone;
     private FirebaseAuth mAuth;
     LocationRequest mLocationRequest;
+    long durationInSeconds;
 
     private Button mLogout, mSettings, mRideStatus, mHistory;
 
+
+    private String myDuration;
     private Switch mWorkingSwitch;
     String mName;
     private int status = 0;
 
     private DatabaseReference mDriverDatabase;
-
+    private Date customerAssignedTime;
     private String userID;
     private String customerId = "", destination;
     private LatLng destinationLatLng, pickupLatLng;
@@ -127,6 +122,8 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     double pickuptime;
     Double completedistance;
     CircleButton navigation;
+    public List<String> referenceDetails = new ArrayList();
+    private Date customerPickupTime,dropOffTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,7 +140,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             mapFragment.getMapAsync(this);
         }
         navigation = findViewById(R.id.startNavi);
-        if(pickupLatLng==null) {
+        if (pickupLatLng == null) {
             navigation.setVisibility(View.INVISIBLE);
         }
         navigation.setOnClickListener(new View.OnClickListener() {
@@ -216,13 +213,19 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         if (destinationLatLng.latitude != 0.0 && destinationLatLng.longitude != 0.0) {
                             getRouteToMarker(destinationLatLng);
                         }
+
+                        Calendar calendar = Calendar.getInstance();
+
+                        customerPickupTime = calendar.getTime();
+
                         mRideStatus.setText("drive completed");
 
 
                         break;
                     case 2:
-
-                       // recordRide();
+                        Calendar calendar2 = Calendar.getInstance();
+        dropOffTime=calendar2.getTime();
+                        // recordRide();
                         endRide();
                         break;
                 }
@@ -263,7 +266,14 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         getAssignedCustomer();
     }
 
+    void getCustomerAssignedTime() {
+        Calendar calendar = Calendar.getInstance();
+
+      customerAssignedTime= calendar.getTime();
+    }
+
     private void getAssignedCustomer() {
+
         String driverId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference assignedCustomerRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverId).child("customerRequest").child("customerRideId");
         assignedCustomerRef.addValueEventListener(new ValueEventListener() {
@@ -275,6 +285,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     mediaPlayer = new MediaPlayer();
                     mediaPlayer = MediaPlayer.create(DriverMapActivity.this, R.raw.android_mp3);
                     mediaPlayer.start();
+                    getCustomerAssignedTime();
                     getAssignedCustomerPickupLocation();
                     getAssignedCustomerDestination();
                     getAssignedCustomerInfo();
@@ -489,16 +500,21 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 //Location.distanceBetween(pickupLatLng.latitude,pickupLatLng.longitude,destinationLatLng.latitude,destinationLatLng.longitude);
 
         HashMap map = new HashMap();
-        map.put("driver", userId);
-        map.put("customer", customerId);
-        map.put("rating", 0);
-        map.put("timestamp", getCurrentTimestamp());
+        map.put("rating", 4.5);
+        map.put("distanceInMeters",completedistance*1000);
+        map.put("durationInSeconds",durationInSeconds);
         map.put("destination", destination);
+        map.put("customerWaitingTime",customerAssignedTime.getTime()- customerPickupTime.getTime());
         map.put("originlat", pickupLatLng.latitude);
         map.put("originlng", pickupLatLng.longitude);
+        map.put("originCityNameInArabic", "أل رياض");
+        map.put("destinationCityNameInArabic", "أل رياض");
         map.put("destinationlat", destinationLatLng.latitude);
         map.put("destinationlng", destinationLatLng.longitude);
-        map.put("distance", rideDistance);
+        map.put("carReference", referenceDetails.get(0));
+        map.put("driverReference", referenceDetails.get(1));
+        map.put("pickUpTimeStamp",customerPickupTime.getTime());
+        map.put("dropOffTimeStamp",dropOffTime.getTime());
         historyRef.child(requestId).updateChildren(map);
 
     }
@@ -536,10 +552,18 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
             if (!customerId.equals("")) {
 
-                rideDistance += mLastLocation.distanceTo(location) / 1000;
+                if(rideDistance!=0.0) {
+                    rideDistance += mLastLocation.distanceTo(location) / 1000;
+                }
                 new RetrieveFeedTask().execute();
                 Toast.makeText(getApplicationContext(), "Complete distance is " + completedistance, Toast.LENGTH_LONG).show();
-
+                Toast.makeText(getApplicationContext(), "Complete duration is " + myDuration, Toast.LENGTH_LONG).show();
+                if(myDuration!=null) {
+                    String check = myDuration.replaceAll(" mins", "");
+                    Toast.makeText(getApplicationContext(), "Y duration" + check, Toast.LENGTH_LONG).show();
+                     durationInSeconds=java.util.concurrent.TimeUnit.MINUTES.toSeconds(Integer.parseInt(check));
+                    Toast.makeText(getApplicationContext(),"SECONDS TIME IS "+durationInSeconds,Toast.LENGTH_LONG).show();
+                }
             }
 
 
@@ -876,7 +900,12 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
                 JSONObject steps = legs.getJSONObject(0);
 
-                JSONObject distance = steps.getJSONObject("distance");
+               String duration= steps.getJSONObject("duration").getString("text");
+
+               myDuration=duration;
+
+               JSONObject distance = steps.getJSONObject("distance");
+
 
                 Log.i("Distance", distance.toString());
                 dist = Double.parseDouble(distance.getString("text").replaceAll("[^\\.0123456789]", ""));
@@ -893,6 +922,61 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         protected void onPostExecute(Double aDouble) {
             super.onPostExecute(aDouble);
         }
+    }
+
+
+    List<String> getReferenceDetails() {
+        DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child(userID).child("cardet");
+        mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+
+                    if (map.get("refid") != null) {
+                        referenceDetails.add(map.get("refid").toString());
+
+                    }
+
+                    //getCompleteCaptainDetails();
+//                    Toast.makeText(getApplicationContext(), "" + map, Toast.LENGTH_LONG).show();
+//                    Log.e("CAPTAIN DETAILS", "" + map);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+        DatabaseReference driverReference = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child(userID);
+        driverReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+
+                    if (map.get("refid") != null) {
+                        referenceDetails.add(map.get("refid").toString());
+
+                    }
+
+                    //getCompleteCaptainDetails();
+//                    Toast.makeText(getApplicationContext(), "" + map, Toast.LENGTH_LONG).show();
+//                    Log.e("CAPTAIN DETAILS", "" + map);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        return referenceDetails;
     }
 
 

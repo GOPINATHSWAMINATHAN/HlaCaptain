@@ -38,7 +38,9 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DriverSettingsActivity extends AppCompatActivity {
@@ -62,6 +64,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
     private Uri resultUri;
 
     private RadioGroup mRadioGroup;
+
 
 
     @Override
@@ -209,9 +212,12 @@ getCompleteCarDetails();
 
             }
         });
+
+
     }
 
-    void getCompleteCarDetails() {
+
+            void getCompleteCarDetails() {
         DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child(userID).child("cardet");
         mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -238,6 +244,8 @@ getCompleteCarDetails();
                     if (map.get("carmodel") != null)
                         mCar = map.get("carmodel").toString();
                     mCarField.setText(mCar);
+                    if(map.get("refid")!=null)
+
                     saveUserInformation();
                     //getCompleteCaptainDetails();
 //                    Toast.makeText(getApplicationContext(), "" + map, Toast.LENGTH_LONG).show();
