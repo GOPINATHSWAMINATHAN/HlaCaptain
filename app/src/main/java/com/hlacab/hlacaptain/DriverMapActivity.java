@@ -123,7 +123,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     Double completedistance;
     CircleButton navigation;
     public List<String> referenceDetails = new ArrayList();
-    private Date customerPickupTime,dropOffTime;
+    private Date customerPickupTime, dropOffTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,7 +224,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         break;
                     case 2:
                         Calendar calendar2 = Calendar.getInstance();
-        dropOffTime=calendar2.getTime();
+                        dropOffTime = calendar2.getTime();
                         // recordRide();
                         endRide();
                         break;
@@ -269,7 +269,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     void getCustomerAssignedTime() {
         Calendar calendar = Calendar.getInstance();
 
-      customerAssignedTime= calendar.getTime();
+        customerAssignedTime = calendar.getTime();
     }
 
     private void getAssignedCustomer() {
@@ -501,10 +501,10 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
         HashMap map = new HashMap();
         map.put("rating", 4.5);
-        map.put("distanceInMeters",completedistance*1000);
-        map.put("durationInSeconds",durationInSeconds);
+        map.put("distanceInMeters", completedistance * 1000);
+        map.put("durationInSeconds", durationInSeconds);
         map.put("destination", destination);
-        map.put("customerWaitingTime",customerAssignedTime.getTime()- customerPickupTime.getTime());
+        map.put("customerWaitingTime", customerAssignedTime.getTime() - customerPickupTime.getTime());
         map.put("originlat", pickupLatLng.latitude);
         map.put("originlng", pickupLatLng.longitude);
         map.put("originCityNameInArabic", "أل رياض");
@@ -513,8 +513,8 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         map.put("destinationlng", destinationLatLng.longitude);
         map.put("carReference", referenceDetails.get(0));
         map.put("driverReference", referenceDetails.get(1));
-        map.put("pickUpTimeStamp",customerPickupTime.getTime());
-        map.put("dropOffTimeStamp",dropOffTime.getTime());
+        map.put("pickUpTimeStamp", customerPickupTime.getTime());
+        map.put("dropOffTimeStamp", dropOffTime.getTime());
         historyRef.child(requestId).updateChildren(map);
 
     }
@@ -552,17 +552,17 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
             if (!customerId.equals("")) {
 
-                if(rideDistance!=0.0) {
+                if (rideDistance != 0.0) {
                     rideDistance += mLastLocation.distanceTo(location) / 1000;
                 }
                 new RetrieveFeedTask().execute();
                 Toast.makeText(getApplicationContext(), "Complete distance is " + completedistance, Toast.LENGTH_LONG).show();
                 Toast.makeText(getApplicationContext(), "Complete duration is " + myDuration, Toast.LENGTH_LONG).show();
-                if(myDuration!=null) {
+                if (myDuration != null) {
                     String check = myDuration.replaceAll(" mins", "");
                     Toast.makeText(getApplicationContext(), "Y duration" + check, Toast.LENGTH_LONG).show();
-                     durationInSeconds=java.util.concurrent.TimeUnit.MINUTES.toSeconds(Integer.parseInt(check));
-                    Toast.makeText(getApplicationContext(),"SECONDS TIME IS "+durationInSeconds,Toast.LENGTH_LONG).show();
+                    durationInSeconds = java.util.concurrent.TimeUnit.MINUTES.toSeconds(Integer.parseInt(check));
+                    Toast.makeText(getApplicationContext(), "SECONDS TIME IS " + durationInSeconds, Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -612,8 +612,8 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(DriverMapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
         }
-        if(mGoogleApiClient!=null)
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        if (mGoogleApiClient != null)
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     private void disconnectDriver() {
@@ -885,15 +885,13 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     while ((b = stream.read()) != -1) {
                         stringBuilder.append((char) b);
                     }
-                }
-            else
-                {
+                } else {
 
-                    Toast.makeText(getApplicationContext(),"Try to delete the customer request which has given for this particular driver",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Try to delete the customer request which has given for this particular driver", Toast.LENGTH_LONG).show();
                 }
-            } catch(ClientProtocolException e){
-                } catch(IOException e){
-                }
+            } catch (ClientProtocolException e) {
+            } catch (IOException e) {
+            }
 
 
             JSONObject jsonObject = new JSONObject();
@@ -909,11 +907,11 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
                 JSONObject steps = legs.getJSONObject(0);
 
-               String duration= steps.getJSONObject("duration").getString("text");
+                String duration = steps.getJSONObject("duration").getString("text");
 
-               myDuration=duration;
+                myDuration = duration;
 
-               JSONObject distance = steps.getJSONObject("distance");
+                JSONObject distance = steps.getJSONObject("distance");
 
 
                 Log.i("Distance", distance.toString());
