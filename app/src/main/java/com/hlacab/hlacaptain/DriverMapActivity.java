@@ -612,6 +612,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(DriverMapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
         }
+        if(mGoogleApiClient!=null)
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
@@ -866,26 +867,34 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             Double dist = 0.0;
             try {
 
-                //destinationAddress = destinationAddress.replaceAll(" ","%20");
-                String url = "http://maps.googleapis.com/maps/api/directions/json?origin=" + pickupLatLng.latitude + "," + pickupLatLng.longitude + "&destination=" + destinationLatLng.latitude + "," + destinationLatLng.longitude + "&mode=driving&sensor=false";
+                if (pickupLatLng.latitude != 0.0 && destinationLatLng.latitude != 0.0) {
+                    //destinationAddress = destinationAddress.replaceAll(" ","%20");
+                    String url = "http://maps.googleapis.com/maps/api/directions/json?origin=" + pickupLatLng.latitude + "," + pickupLatLng.longitude + "&destination=" + destinationLatLng.latitude + "," + destinationLatLng.longitude + "&mode=driving&sensor=false";
 
-                HttpPost httppost = new HttpPost(url);
+                    HttpPost httppost = new HttpPost(url);
 
-                DefaultHttpClient client = new DefaultHttpClient();
-                HttpResponse response;
-                stringBuilder = new StringBuilder();
+                    DefaultHttpClient client = new DefaultHttpClient();
+                    HttpResponse response;
+                    stringBuilder = new StringBuilder();
 
 
-                response = client.execute(httppost);
-                HttpEntity entity = response.getEntity();
-                InputStream stream = entity.getContent();
-                int b;
-                while ((b = stream.read()) != -1) {
-                    stringBuilder.append((char) b);
+                    response = client.execute(httppost);
+                    HttpEntity entity = response.getEntity();
+                    InputStream stream = entity.getContent();
+                    int b;
+                    while ((b = stream.read()) != -1) {
+                        stringBuilder.append((char) b);
+                    }
                 }
-            } catch (ClientProtocolException e) {
-            } catch (IOException e) {
-            }
+            else
+                {
+
+                    Toast.makeText(getApplicationContext(),"Try to delete the customer request which has given for this particular driver",Toast.LENGTH_LONG).show();
+                }
+            } catch(ClientProtocolException e){
+                } catch(IOException e){
+                }
+
 
             JSONObject jsonObject = new JSONObject();
             try {
