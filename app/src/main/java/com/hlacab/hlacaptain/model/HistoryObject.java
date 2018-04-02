@@ -1,4 +1,4 @@
-package com.hlacab.hlacaptain;
+package com.hlacab.hlacaptain.model;
 
 /**
  * Created by manel on 10/10/2017.

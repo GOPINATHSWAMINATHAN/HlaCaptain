@@ -1,4 +1,4 @@
-package com.hlacab.hlacaptain;
+package com.hlacab.hlacaptain.activities;
 
 import java.util.List;
 
@@ -8,14 +8,13 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 
 // classes needed to initialize map
+import com.hlacab.hlacaptain.R;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
-import android.location.Location;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import android.support.annotation.NonNull;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
@@ -39,14 +38,6 @@ import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import android.view.View;
 import android.widget.Button;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
-import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
-import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
-import com.mapbox.api.directions.v5.models.DirectionsResponse;
-import com.mapbox.api.directions.v5.models.DirectionsRoute;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import android.util.Log;
 
 public class ShowNavigation extends AppCompatActivity implements LocationEngineListener, PermissionsListener {
     private MapView mapView;private MapboxMap map;

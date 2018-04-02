@@ -1,4 +1,4 @@
-package com.hlacab.hlacaptain;
+package com.hlacab.hlacaptain.service;
 
 import android.app.Service;
 import android.content.Intent;

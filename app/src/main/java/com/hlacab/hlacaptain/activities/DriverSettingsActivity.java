@@ -1,4 +1,4 @@
-package com.hlacab.hlacaptain;
+package com.hlacab.hlacaptain.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -34,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.hlacab.hlacaptain.R;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.io.ByteArrayOutputStream;
@@ -66,7 +67,6 @@ public class DriverSettingsActivity extends AppCompatActivity {
     private RadioGroup mRadioGroup;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,13 +88,17 @@ public class DriverSettingsActivity extends AppCompatActivity {
         mPhoneField.setTypeface(custom_font);
         mCarField.setTypeface(custom_font);
         mAuth = FirebaseAuth.getInstance();
-        userID = mAuth.getCurrentUser().getUid();
-        mDriverDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userID);
+        if (mAuth.getCurrentUser() != null) {
+            userID = mAuth.getCurrentUser().getUid();
+            mDriverDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userID);
 
-        getUserInfo();
+            getUserInfo();
+        } else {
+            Toast.makeText(getApplicationContext(), "Account signed Out!", Toast.LENGTH_LONG).show();
+        }
 
         //Newly added methods
-       // getCompleteCarDetails();
+        // getCompleteCarDetails();
 
 
         mProfileImage.setOnClickListener(new View.OnClickListener() {
@@ -133,13 +137,14 @@ public class DriverSettingsActivity extends AppCompatActivity {
             case android.R.id.home:
                 // API 5+ solution
                 this.finish();
-               // onBackPressed();
+                // onBackPressed();
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
     private void getUserInfo() {
         /**
          * Name, phoneno,car,servicetype,profileimageurl
@@ -151,7 +156,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
                     Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
                     if (map.get("name") != null) {
                         mName = map.get("name").toString();
-                       // mNameField.setText(mName);
+                        // mNameField.setText(mName);
                     }
                     if (map.get("phone") != null) {
                         mPhone = map.get("phone").toString();
@@ -177,12 +182,11 @@ public class DriverSettingsActivity extends AppCompatActivity {
                     }
                     if (map.get("profileImageUrl") != null) {
                         mProfileImageUrl = map.get("profileImageUrl").toString();
-                       // Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
+                        // Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
                     }
                 }
             }
 
-            @Override
             public void onCancelled(DatabaseError databaseError) {
             }
         });
@@ -199,10 +203,10 @@ public class DriverSettingsActivity extends AppCompatActivity {
                     if (map.get("mobno") != null)
                         mPhone = map.get("mobno").toString();
                     mPhoneField.setText(mPhone);
-                    if(map.get("drpic")!=null)
-                        mProfileImageUrl=map.get("drpic").toString();
+                    if (map.get("drpic") != null)
+                        mProfileImageUrl = map.get("drpic").toString();
                     Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
-getCompleteCarDetails();
+                    getCompleteCarDetails();
                 }
 
             }
@@ -217,7 +221,7 @@ getCompleteCarDetails();
     }
 
 
-            void getCompleteCarDetails() {
+    void getCompleteCarDetails() {
         DatabaseReference mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("FromMobilyDriver").child(userID).child("cardet");
         mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -244,9 +248,9 @@ getCompleteCarDetails();
                     if (map.get("carmodel") != null)
                         mCar = map.get("carmodel").toString();
                     mCarField.setText(mCar);
-                    if(map.get("refid")!=null)
+                    if (map.get("refid") != null)
 
-                    saveUserInformation();
+                        saveUserInformation();
                     //getCompleteCaptainDetails();
 //                    Toast.makeText(getApplicationContext(), "" + map, Toast.LENGTH_LONG).show();
 //                    Log.e("CAPTAIN DETAILS", "" + map);
@@ -311,7 +315,7 @@ getCompleteCarDetails();
         userInfo.put("phone", mPhone);
         userInfo.put("car", mCar);
         userInfo.put("service", mService);
-        userInfo.put("profileImageUrl",mProfileImageUrl);
+        userInfo.put("profileImageUrl", mProfileImageUrl);
         mDriverDatabase.updateChildren(userInfo);
 
         if (resultUri != null) {

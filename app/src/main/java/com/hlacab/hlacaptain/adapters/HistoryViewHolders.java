@@ -1,10 +1,13 @@
-package com.hlacab.hlacaptain;
+package com.hlacab.hlacaptain.adapters;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
+
+import com.hlacab.hlacaptain.R;
+import com.hlacab.hlacaptain.activities.HistorySingleActivity;
 
 /**
  * Created by manel on 10/10/2017.

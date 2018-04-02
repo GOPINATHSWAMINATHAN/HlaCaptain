@@ -1,4 +1,4 @@
-package com.hlacab.hlacaptain;
+package com.hlacab.hlacaptain.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.hlacab.hlacaptain.R;
 
 public class DriverLoginActivity extends AppCompatActivity {
     private EditText mEmail, mPassword;

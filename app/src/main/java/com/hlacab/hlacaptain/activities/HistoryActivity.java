@@ -1,4 +1,4 @@
-package com.hlacab.hlacaptain;
+package com.hlacab.hlacaptain.activities;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -15,6 +15,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.hlacab.hlacaptain.adapters.HistoryAdapter;
+import com.hlacab.hlacaptain.model.HistoryObject;
+import com.hlacab.hlacaptain.R;
 
 import java.util.ArrayList;
 import java.util.Calendar;
