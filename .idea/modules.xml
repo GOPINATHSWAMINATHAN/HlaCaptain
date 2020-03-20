@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/HlaCaptain.iml" filepath="$PROJECT_DIR$/HlaCaptain.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/HlaCaptain.iml" filepath="$PROJECT_DIR$/HlaCaptain.iml" group="HlaCaptain" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="HlaCaptain/app" />
     </modules>
   </component>
 </project>
